@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react';
-
-const KEY = '407b2657';
+import { useState } from 'react';
 
 const tempMovieData = [
   {
@@ -53,24 +51,8 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  const query = 'Over The Garden Wall';
-
-  useEffect(() => {
-    async function fetchMovie() {
-      setLoading(true);
-      const result = await fetch(
-        `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
-      ).then((data) => data.json());
-
-      setMovies(result.Search);
-      setLoading(false);
-    }
-    fetchMovie();
-  }, []);
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
@@ -80,7 +62,9 @@ export default function App() {
       </NavBar>
 
       <Main>
-        <Box>{loading ? <Loader /> : <MovieList movies={movies} />}</Box>
+        <Box>
+          <MovieList movies={movies} />
+        </Box>
 
         <Box>
           <WatchedSummary watched={watched} />
@@ -89,10 +73,6 @@ export default function App() {
       </Main>
     </>
   );
-}
-
-function Loader() {
-  return <p className='loader'>Loading...</p>;
 }
 
 ///// NAVBAR /////
