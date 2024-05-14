@@ -196,7 +196,7 @@ body {
   aspect-ratio: 1;
   border-radius: 50%;
   border: none;
-  background-color: var(--color-red);
+  background-color: var(--color-text-dark);
   color: var(--color-background-900);
   font-size: 0.9rem;
   font-weight: bold;

@@ -32,21 +32,36 @@ export default function App() {
     setSelectedId(null);
   }
 
+  function handleAddWatched(movie) {
+    // Update user rating if already in watched list
+    const watchedMovie = watched.find((w) => w.imdbID === movie.imdbID);
+    if (watchedMovie) watchedMovie.userRating = movie.userRating;
+    else setWatched((watched) => [...watched, movie]);
+  }
+
+  function handleDeleteWatched(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
   useEffect(() => {
+    const controller = new AbortController();
+
     async function fetchMovie() {
       try {
         // reset error first
         setError('');
         setLoading(true);
         const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+          { signal: controller.signal }
         ).then((data) => data.json());
 
         if (response.Response !== 'True') throw new Error(response.Error);
 
         setMovies(response.Search);
+        setError('');
       } catch (err) {
-        setError(err.message);
+        if (err.name !== 'AbortError') setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -59,6 +74,10 @@ export default function App() {
     }
 
     fetchMovie();
+
+    return function () {
+      controller.abort();
+    };
   }, [query]);
 
   return (
@@ -83,11 +102,16 @@ export default function App() {
             <MovieDetails
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
+              onAddWatched={handleAddWatched}
+              watched={watched}
             />
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMoviesList watched={watched} />
+              <WatchedMoviesList
+                watched={watched}
+                onDeleteWatched={handleDeleteWatched}
+              />
             </>
           )}
         </Box>
