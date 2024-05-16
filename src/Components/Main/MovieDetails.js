@@ -48,6 +48,25 @@ export default function MovieDetails({
     onCloseMovie();
   }
 
+  // Close moviedetails with ESC key
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === 'Escape') {
+          onCloseMovie();
+        }
+      }
+
+      document.addEventListener('keydown', callback);
+
+      // Remove event listener or they will pile up
+      return function () {
+        document.removeEventListener('keydown', callback);
+      };
+    },
+    [onCloseMovie]
+  );
+
   useEffect(
     function () {
       async function getMovieDetails() {
