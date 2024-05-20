@@ -11,21 +11,20 @@ import MovieDetails from './Main/MovieDetails.js';
 import WatchedSummary from './Main/WatchedSummary.js';
 import WatchedMoviesList from './Main/WatchedMoviesList.js';
 import ErrorMessage from './Main/ErrorMessage.js';
+import { useMovies } from './Main/useMovies.js';
 
 export const KEY = '407b2657';
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
   //const [watched, setWatched] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [selectedId, setSelectedId] = useState(null);
-
   const [watched, setWatched] = useState(() => {
     const storedValue = localStorage.getItem('watched');
     return JSON.parse(storedValue);
   });
+
+  const { movies, loading, error } = useMovies(query);
 
   // Select movie in search result
   function handleSelectMovie(id) {
@@ -54,44 +53,6 @@ export default function App() {
     },
     [watched]
   );
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function fetchMovie() {
-      try {
-        // reset error first
-        setError('');
-        setLoading(true);
-        const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-          { signal: controller.signal }
-        ).then((data) => data.json());
-
-        if (response.Response !== 'True') throw new Error(response.Error);
-
-        setMovies(response.Search);
-        setError('');
-      } catch (err) {
-        if (err.name !== 'AbortError') setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (query.length < 3) {
-      setMovies([]);
-      setError('');
-      return;
-    }
-
-    handleCloseMovie();
-    fetchMovie();
-
-    return function () {
-      controller.abort();
-    };
-  }, [query]);
 
   return (
     <>
